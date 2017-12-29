@@ -1,6 +1,8 @@
 # Docker ELK stack
 
-[![Join the chat at https://gitter.im/deviantony/docker-elk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deviantony/docker-elk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Elastic Stack version](https://img.shields.io/badge/ELK-5.5.1-blue.svg?style=flat)](https://github.com/deviantony/docker-elk/issues/158)
+[![Join the chat at https://gitter.im/deviantony/docker-elk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deviantony/docker-elk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Elastic Stack version](https://img.shields.io/badge/ELK-6.1.0-blue.svg?style=flat)](https://github.com/deviantony/docker-elk/issues/212)
+[![Build Status](https://api.travis-ci.org/deviantony/docker-elk.svg?branch=master)](https://travis-ci.org/deviantony/docker-elk)
 
 Run the latest version of the ELK (Elasticsearch, Logstash, Kibana) stack with Docker and Docker Compose.
 
@@ -15,9 +17,9 @@ Based on the official Docker images:
 
 **Note**: Other branches in this project are available:
 
-* ELK 5 with X-Pack support: https://github.com/deviantony/docker-elk/tree/x-pack
-* ELK 5 in Vagrant: https://github.com/deviantony/docker-elk/tree/vagrant
-* ELK 5 with Search Guard: https://github.com/deviantony/docker-elk/tree/searchguard
+* ELK 6 with X-Pack support: https://github.com/deviantony/docker-elk/tree/x-pack
+* ELK 6 in Vagrant: https://github.com/deviantony/docker-elk/tree/vagrant
+* ELK 6 with Search Guard: https://github.com/deviantony/docker-elk/tree/searchguard
 
 ## Contents
 
@@ -55,7 +57,7 @@ On distributions which have SELinux enabled out-of-the-box you will need to eith
 into Permissive mode in order for docker-elk to start properly. For example on Redhat and CentOS, the following will
 apply the proper context:
 
-```bash
+```console
 $ chcon -R system_u:object_r:admin_home_t:s0 docker-elk/
 ```
 
@@ -65,17 +67,17 @@ $ chcon -R system_u:object_r:admin_home_t:s0 docker-elk/
 
 Start the ELK stack using `docker-compose`:
 
-```bash
+```console
 $ docker-compose up
 ```
 
 You can also choose to run it in background (detached mode):
 
-```bash
+```console
 $ docker-compose up -d
 ```
 
-Give Kibana about 2 minutes to initialize, then access the Kibana web UI by hitting
+Give Kibana a few seconds to initialize, then access the Kibana web UI by hitting
 [http://localhost:5601](http://localhost:5601) with a web browser.
 
 By default, the stack exposes the following ports:
@@ -92,7 +94,7 @@ By default, the stack exposes the following ports:
 Now that the stack is running, you will want to inject some log entries. The shipped Logstash configuration allows you
 to send content via TCP:
 
-```bash
+```console
 $ nc localhost 5000 < /path/to/logfile.log
 ```
 
@@ -113,21 +115,15 @@ about the index pattern configuration.
 
 #### On the command line
 
-Run this command to create a Logstash index pattern:
+Run this command to create a Kibana index pattern:
 
-```bash
-$ curl -XPUT -D- 'http://localhost:9200/.kibana/index-pattern/logstash-*' \
+```console
+$ curl -XPUT -D- 'http://localhost:9200/.kibana/doc/index-pattern:docker-elk' \
     -H 'Content-Type: application/json' \
-    -d '{"title" : "logstash-*", "timeFieldName": "@timestamp", "notExpandable": true}'
+    -d '{"type": "index-pattern", "index-pattern": {"title": "logstash-*", "timeFieldName": "@timestamp"}}'
 ```
 
-This command will mark the Logstash index pattern as the default index pattern:
-
-```bash
-$ curl -XPUT -D- 'http://localhost:9200/.kibana/config/5.5.1' \
-    -H 'Content-Type: application/json' \
-    -d '{"defaultIndex": "logstash-*"}'
-```
+This will automatically be marked as the default index pattern as soon as the Kibana UI is opened for the first time.
 
 ## Configuration
 
