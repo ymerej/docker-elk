@@ -6,12 +6,15 @@ services:
     build:
       context: elasticsearch/
     volumes:
+      - elasticdata:/usr/share/elasticsearch/data:rw
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     ports:
       - "9200:9200"
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      #APP_UID: 1000
+      #APP_GID: 1000
     networks:
       - elk
 
@@ -19,10 +22,11 @@ services:
     build:
       context: logstash/
     volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/config/logstash-oss.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
     ports:
-      - "5100:5000"
+      - "5100:5100"
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     networks:
@@ -46,3 +50,6 @@ networks:
 
   elk:
     driver: bridge
+
+volumes:
+  elasticdata:
